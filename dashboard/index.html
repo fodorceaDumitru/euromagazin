@@ -375,6 +375,7 @@
         </div>
         <h3>Mesaj trimis!</h3>
         <p>Vă mulțumim că ne-ați contactat. Vă vom răspunde în cel mult 24 de ore.<br>Sau sunați-ne direct la <strong>+373 22 123 456</strong>.</p>
+        <a href="admin.html" style="display:inline-block;margin-top:1.25rem;padding:10px 22px;background:var(--blue-500);color:var(--white);border-radius:var(--radius-sm);text-decoration:none;font-size:14px;font-weight:500;">Vezi dashboard →</a>
       </div>
     </div>
   </div>
@@ -390,6 +391,7 @@
   <script>
     function handleSubmit() {
       const fname = document.getElementById('fname').value.trim();
+      const lname = document.getElementById('lname').value.trim();
       const phone = document.getElementById('phone').value.trim();
       if (!fname || !phone) {
         const el = !fname ? document.getElementById('fname') : document.getElementById('phone');
@@ -398,6 +400,17 @@
         el.addEventListener('input', () => el.style.borderColor = '', { once: true });
         return;
       }
+      // Save to localStorage
+      const submissions = JSON.parse(localStorage.getItem('euromagazin_submissions') || '[]');
+      submissions.push({
+        id: Date.now(),
+        prenume: fname,
+        nume: lname,
+        telefon: phone,
+        data: new Date().toLocaleString('ro-RO')
+      });
+      localStorage.setItem('euromagazin_submissions', JSON.stringify(submissions));
+
       document.getElementById('form-body').style.display = 'none';
       document.getElementById('success-state').style.display = 'block';
     }
