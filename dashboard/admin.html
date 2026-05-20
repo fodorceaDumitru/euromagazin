@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard – EuroMagazin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-900: #0a1f44;
+      --blue-700: #1a3a6b;
+      --blue-500: #1d5fc4;
+      --blue-400: #3b7de0;
+      --blue-100: #dbeafe;
+      --blue-50:  #eff6ff;
+      --white:    #ffffff;
+      --gray-200: #e2e8f0;
+      --gray-400: #94a3b8;
+      --gray-600: #475569;
+      --red-100:  #fee2e2;
+      --red-500:  #ef4444;
+      --font-display: 'Playfair Display', serif;
+      --font-body: 'DM Sans', sans-serif;
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--blue-50);
+      color: var(--blue-900);
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--blue-900);
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-logo { font-family: var(--font-display); font-size: 20px; color: var(--white); }
+    .nav-logo span { color: var(--blue-400); }
+    .nav-back {
+      font-size: 13px;
+      color: var(--blue-100);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--white); }
+    .nav-back svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ── HEADER STRIP ── */
+    .page-header {
+      background: linear-gradient(135deg, var(--blue-900) 0%, var(--blue-700) 100%);
+      padding: 2.5rem 1.5rem 3.5rem;
+      text-align: center;
+    }
+    .page-header h1 { font-family: var(--font-display); font-size: clamp(22px, 4vw, 36px); color: var(--white); margin-bottom: 0.4rem; }
+    .page-header p { font-size: 14px; color: var(--blue-100); }
+
+    /* ── MAIN WRAPPER ── */
+    .wrapper {
+      max-width: 960px;
+      margin: -2rem auto 4rem;
+      padding: 0 1.25rem;
+    }
+
+    /* ── STAT CARDS ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-card {
+      background: var(--white);
+      border: 1px solid #dce8f8;
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      animation: fadeUp 0.4s ease both;
+    }
+    .stat-card:nth-child(2) { animation-delay: 0.07s; }
+    .stat-card:nth-child(3) { animation-delay: 0.14s; }
+    .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--gray-400); margin-bottom: 6px; }
+    .stat-value { font-family: var(--font-display); font-size: 32px; color: var(--blue-900); line-height: 1; }
+    .stat-sub { font-size: 12px; color: var(--gray-400); margin-top: 4px; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .search-wrap { position: relative; flex: 1; min-width: 180px; max-width: 320px; }
+    .search-wrap svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; stroke: var(--gray-400); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+    #search {
+      width: 100%;
+      font-family: var(--font-body);
+      font-size: 14px;
+      padding: 9px 12px 9px 34px;
+      border: 1.5px solid #d1e0f7;
+      border-radius: var(--radius-sm);
+      background: var(--white);
+      color: var(--blue-900);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    #search:focus { border-color: var(--blue-500); }
+    #search::placeholder { color: var(--gray-400); }
+
+    .btn-clear-all {
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 9px 16px;
+      border: 1.5px solid var(--red-500);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--red-500);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      white-space: nowrap;
+    }
+    .btn-clear-all:hover { background: var(--red-500); color: var(--white); }
+
+    /* ── TABLE CARD ── */
+    .table-card {
+      background: var(--white);
+      border: 1px solid #dce8f8;
+      border-radius: var(--radius);
+      overflow: hidden;
+      animation: fadeUp 0.45s ease 0.1s both;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: var(--blue-900); }
+    thead th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--blue-100);
+    }
+    tbody tr { border-bottom: 1px solid var(--blue-50); transition: background 0.15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--blue-50); }
+    tbody td { padding: 13px 16px; font-size: 14px; color: var(--blue-900); vertical-align: middle; }
+    .td-id { color: var(--gray-400); font-size: 12px; }
+    .td-name { font-weight: 500; }
+    .td-phone a { color: var(--blue-500); text-decoration: none; }
+    .td-phone a:hover { text-decoration: underline; }
+    .td-date { color: var(--gray-600); font-size: 13px; }
+
+    .btn-delete {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 6px;
+      color: var(--gray-400);
+      transition: color 0.15s, background 0.15s;
+      display: flex; align-items: center;
+    }
+    .btn-delete:hover { color: var(--red-500); background: var(--red-100); }
+    .btn-delete svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ── EMPTY STATE ── */
+    .empty {
+      text-align: center;
+      padding: 4rem 1rem;
+    }
+    .empty-icon {
+      width: 56px; height: 56px;
+      background: var(--blue-100);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1rem;
+    }
+    .empty-icon svg { width: 26px; height: 26px; stroke: var(--blue-500); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .empty h3 { font-family: var(--font-display); font-size: 18px; color: var(--blue-900); margin-bottom: 0.4rem; }
+    .empty p { font-size: 14px; color: var(--gray-400); }
+    .empty a { display: inline-block; margin-top: 1rem; font-size: 14px; font-weight: 500; color: var(--blue-500); text-decoration: none; }
+    .empty a:hover { text-decoration: underline; }
+
+    /* ── FOOTER ── */
+    footer { background: var(--blue-900); text-align: center; padding: 1.25rem 1rem; font-size: 13px; color: var(--blue-100); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .stats { grid-template-columns: 1fr 1fr; }
+      .stats .stat-card:last-child { grid-column: span 2; }
+      thead th:nth-child(1), tbody td:nth-child(1) { display: none; }
+      thead th:nth-child(4), tbody td:nth-child(4) { display: none; }
+      .wrapper { padding: 0 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">Euro<span>Magazin</span></div>
+    <a class="nav-back" href="index.html">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Înapoi la formular
+    </a>
+  </nav>
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <h1>Dashboard</h1>
+    <p>Toate înregistrările primite prin formularul de contact</p>
+  </div>
+
+  <!-- MAIN -->
+  <div class="wrapper">
+
+    <!-- STATS -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-label">Total înregistrări</div>
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-sub">din toate timpurile</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Astăzi</div>
+        <div class="stat-value" id="stat-today">0</div>
+        <div class="stat-sub">înregistrări noi</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Ultima înregistrare</div>
+        <div class="stat-value" style="font-size:16px;padding-top:6px;" id="stat-last">—</div>
+        <div class="stat-sub" id="stat-last-time"></div>
+      </div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="search" placeholder="Căutați după nume sau telefon…" oninput="renderTable()"/>
+      </div>
+      <button class="btn-clear-all" onclick="clearAll()">Șterge tot</button>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-card">
+      <div id="table-container"></div>
+    </div>
+
+  </div>
+
+  <footer>&copy; 2026 EuroMagazin. Toate drepturile rezervate.</footer>
+
+  <script>
+
+    const ADMIN_PASSWORD = "admin123";
+
+    const savedAuth = sessionStorage.getItem("dashboard_auth");
+
+    if (savedAuth !== "true") {
+        const password = prompt("Introduceți parola pentru dashboard:");
+
+        if (password === ADMIN_PASSWORD) {
+        sessionStorage.setItem("dashboard_auth", "true");
+        } else {
+        alert("Acces interzis!");
+        window.location.href = "index.html";
+        }
+    }
+
+    function getSubmissions() {
+      return JSON.parse(localStorage.getItem('euromagazin_submissions') || '[]');
+    }
+
+    function saveSubmissions(data) {
+      localStorage.setItem('euromagazin_submissions', JSON.stringify(data));
+    }
+
+    function updateStats(data) {
+      document.getElementById('stat-total').textContent = data.length;
+
+      const today = new Date().toLocaleDateString('ro-RO');
+      const todayCount = data.filter(s => s.data && s.data.startsWith(today)).length;
+      document.getElementById('stat-today').textContent = todayCount;
+
+      if (data.length > 0) {
+        const last = data[data.length - 1];
+        document.getElementById('stat-last').textContent = last.prenume + ' ' + (last.nume || '');
+        document.getElementById('stat-last-time').textContent = last.data || '';
+      } else {
+        document.getElementById('stat-last').textContent = '—';
+        document.getElementById('stat-last-time').textContent = '';
+      }
+    }
+
+    function renderTable() {
+      const data = getSubmissions();
+      const query = document.getElementById('search').value.trim().toLowerCase();
+      const filtered = query
+        ? data.filter(s =>
+            (s.prenume + ' ' + s.nume).toLowerCase().includes(query) ||
+            s.telefon.toLowerCase().includes(query)
+          )
+        : data;
+
+      updateStats(data);
+      const container = document.getElementById('table-container');
+
+      if (data.length === 0) {
+        container.innerHTML = `
+          <div class="empty">
+            <div class="empty-icon">
+              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <h3>Nicio înregistrare încă</h3>
+            <p>Trimiteți primul formular pentru a vedea datele aici.</p>
+            <a href="index.html">Mergeți la formular →</a>
+          </div>`;
+        return;
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="empty"><h3 style="font-size:16px">Niciun rezultat</h3><p>Nicio înregistrare nu corespunde căutării.</p></div>`;
+        return;
+      }
+
+      const rows = [...filtered].reverse().map((s, i) => `
+        <tr>
+          <td class="td-id">#${filtered.length - i}</td>
+          <td class="td-name">${esc(s.prenume)} ${esc(s.nume || '')}</td>
+          <td class="td-phone"><a href="tel:${esc(s.telefon)}">${esc(s.telefon)}</a></td>
+          <td class="td-date">${esc(s.data || '')}</td>
+          <td>
+            <button class="btn-delete" onclick="deleteEntry(${s.id})" title="Șterge">
+              <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            </button>
+          </td>
+        </tr>`).join('');
+
+      container.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nume complet</th>
+              <th>Telefon</th>
+              <th>Data</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }
+
+    function deleteEntry(id) {
+      const data = getSubmissions().filter(s => s.id !== id);
+      saveSubmissions(data);
+      renderTable();
+    }
+
+    function clearAll() {
+      if (confirm('Sigur doriți să ștergeți toate înregistrările?')) {
+        saveSubmissions([]);
+        renderTable();
+      }
+    }
+
+    function esc(str) {
+      return String(str)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    renderTable();
+  </script>
+</body>
+</html>
