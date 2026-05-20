@@ -219,6 +219,50 @@
       transition: border-color 0.2s, box-shadow 0.2s;
       -webkit-appearance: none;
       appearance: none;
+      
+    }
+   .phone-wrapper {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      border: 1.5px dashed #777;
+      border-radius: 12px;
+      overflow: hidden;
+      background: white;
+    }
+
+    .phone-wrapper:focus-within {
+      border-color: var(--blue-500);
+    }
+
+    .phone-prefix {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 16px;
+      border-right: 1px solid #d1d5db;
+      background: #fff;
+      font-size: 18px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .flag {
+      font-size: 20px;
+    }
+
+    .phone-wrapper input {
+      flex: 1;
+      border: none !important;
+      outline: none;
+      padding: 14px 18px;
+      font-size: 18px;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+
+    .phone-wrapper input::placeholder {
+      color: #777;
     }
     .field select {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
@@ -363,7 +407,24 @@
 
         <div class="field">
           <label for="phone">Număr de telefon</label>
-          <input type="tel" id="phone" placeholder="+373 22 000 000" autocomplete="tel"/>
+
+          <div class="phone-wrapper">
+
+            <div class="phone-prefix">
+              <span class="flag">🇲🇩</span>
+              <span>+373</span>
+            </div>
+
+            <input
+              type="tel"
+              id="phone"
+              placeholder="Enter a phone number"
+              autocomplete="tel"
+              maxlength="11"
+              inputmode="numeric"
+            />
+          </div>
+
         </div>
 
         <button class="submit-btn" onclick="handleSubmit()">Trimite mesajul →</button>
@@ -389,31 +450,93 @@
   </footer>
 
   <script>
-    function handleSubmit() {
-      const fname = document.getElementById('fname').value.trim();
-      const lname = document.getElementById('lname').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      if (!fname || !phone) {
-        const el = !fname ? document.getElementById('fname') : document.getElementById('phone');
-        el.focus();
-        el.style.borderColor = '#e24b4a';
-        el.addEventListener('input', () => el.style.borderColor = '', { once: true });
-        return;
-      }
-      // Save to localStorage
-      const submissions = JSON.parse(localStorage.getItem('euromagazin_submissions') || '[]');
-      submissions.push({
-        id: Date.now(),
-        prenume: fname,
-        nume: lname,
-        telefon: phone,
-        data: new Date().toLocaleString('ro-RO')
-      });
-      localStorage.setItem('euromagazin_submissions', JSON.stringify(submissions));
+     const phoneInput = document.getElementById('phone');
 
-      document.getElementById('form-body').style.display = 'none';
-      document.getElementById('success-state').style.display = 'block';
+  phoneInput.addEventListener('input', () => {
+    let value = phoneInput.value.replace(/\D/g, '');
+
+    // Max 8 digits for Moldova local number
+    value = value.substring(0, 8);
+
+    // Format: 60 000 000
+    if (value.length > 2) {
+      value = value.substring(0, 2) + ' ' + value.substring(2);
     }
+
+    if (value.length > 6) {
+      value = value.substring(0, 6) + ' ' + value.substring(6);
+    }
+
+    phoneInput.value = value;
+  });
+
+  function handleSubmit() {
+    const fname = document.getElementById('fname').value.trim();
+    const lname = document.getElementById('lname').value.trim();
+
+    let phone = document.getElementById('phone').value.replace(/\D/g, '');
+
+    if (!fname || !phone) {
+      const el = !fname
+        ? document.getElementById('fname')
+        : document.getElementById('phone');
+
+      el.focus();
+
+      if (el.parentElement.classList.contains('phone-wrapper')) {
+        el.parentElement.style.borderColor = '#e24b4a';
+
+        el.addEventListener('input', () => {
+          el.parentElement.style.borderColor = '';
+        }, { once: true });
+
+      } else {
+        el.style.borderColor = '#e24b4a';
+
+        el.addEventListener('input', () => {
+          el.style.borderColor = '';
+        }, { once: true });
+      }
+
+      return;
+    }
+
+    // Moldova mobile validation
+    const validPrefixes = [
+      '60','61','62','67','68','69',
+      '76','77','78','79','22'
+    ];
+
+    if (
+      phone.length !== 8 ||
+      !validPrefixes.includes(phone.substring(0,2))
+    ) {
+      alert('Introduceți un număr moldovenesc valid.');
+      return;
+    }
+
+    const fullPhone = '+373 ' + phone.replace(/(\d{2})(\d{3})(\d{3})/, '$1 $2 $3');
+
+    const submissions = JSON.parse(
+      localStorage.getItem('euromagazin_submissions') || '[]'
+    );
+
+    submissions.push({
+      id: Date.now(),
+      prenume: fname,
+      nume: lname,
+      telefon: fullPhone,
+      data: new Date().toLocaleString('ro-RO')
+    });
+
+    localStorage.setItem(
+      'euromagazin_submissions',
+      JSON.stringify(submissions)
+    );
+
+    document.getElementById('form-body').style.display = 'none';
+    document.getElementById('success-state').style.display = 'block';
+  }
   </script>
 </body>
 </html>
