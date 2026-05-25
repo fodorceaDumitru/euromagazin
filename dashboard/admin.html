@@ -409,15 +409,16 @@
         .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    renderTable();
-
-    const SUPABASE_URL = "https://pwinrkuezjgismibvmvn.supabase.co/rest/v1/";
+    const SUPABASE_URL = "https://pwinrkuezjgismibvmvn.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB3aW5ya3VlempnaXNtaWJ2bXZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyOTkzOTAsImV4cCI6MjA5NDg3NTM5MH0.2vxw3ZAb66BBTZMv94vPxAwjAKveNQwm5tvpRGoDugo";
 
     const supabaseClient = supabase.createClient(
         SUPABASE_URL,
         SUPABASE_KEY
     );
+
+    renderTable();
+
 
   </script>
 </body>
