@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard – EuroMagazin</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -290,8 +291,19 @@
         }
     }
 
-    function getSubmissions() {
-      return JSON.parse(localStorage.getItem('euromagazin_submissions') || '[]');
+    async function getSubmissions() {
+
+    const { data, error } = await supabaseClient
+        .from('submissions')
+        .select('*')
+        .order('id', { ascending: false });
+
+    if (error) {
+        console.error(error);
+        return [];
+    }
+
+    return data;
     }
 
     function saveSubmissions(data) {
@@ -315,8 +327,8 @@
       }
     }
 
-    function renderTable() {
-      const data = getSubmissions();
+    async function renderTable() {
+      const data = await getSubmissions();
       const query = document.getElementById('search').value.trim().toLowerCase();
       const filtered = query
         ? data.filter(s =>
@@ -374,10 +386,14 @@
         </table>`;
     }
 
-    function deleteEntry(id) {
-      const data = getSubmissions().filter(s => s.id !== id);
-      saveSubmissions(data);
-      renderTable();
+    async function deleteEntry(id) {
+
+    await supabaseClient
+        .from('submissions')
+        .delete()
+        .eq('id', id);
+
+    renderTable();
     }
 
     function clearAll() {
@@ -394,6 +410,15 @@
     }
 
     renderTable();
+
+    const SUPABASE_URL = "https://pwinrkuezjgismibvmvn.supabase.co/rest/v1/";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB3aW5ya3VlempnaXNtaWJ2bXZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyOTkzOTAsImV4cCI6MjA5NDg3NTM5MH0.2vxw3ZAb66BBTZMv94vPxAwjAKveNQwm5tvpRGoDugo";
+
+    const supabaseClient = supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
   </script>
 </body>
 </html>
