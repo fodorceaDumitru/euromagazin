@@ -471,91 +471,56 @@
     phoneInput.value = value;
   });
 
-  function handleSubmit() {
-    const fname = document.getElementById('fname').value.trim();
-    const lname = document.getElementById('lname').value.trim();
+  async function handleSubmit() {
 
-    let phone = document.getElementById('phone').value.replace(/\D/g, '');
+  const fname = document.getElementById('fname').value.trim();
+  const lname = document.getElementById('lname').value.trim();
 
-    if (!fname || !phone) {
-      const el = !fname
-        ? document.getElementById('fname')
-        : document.getElementById('phone');
+  let phone = document.getElementById('phone').value.replace(/\D/g, '');
 
-      el.focus();
-
-      if (el.parentElement.classList.contains('phone-wrapper')) {
-        el.parentElement.style.borderColor = '#e24b4a';
-
-        el.addEventListener('input', () => {
-          el.parentElement.style.borderColor = '';
-        }, { once: true });
-
-      } else {
-        el.style.borderColor = '#e24b4a';
-
-        el.addEventListener('input', () => {
-          el.style.borderColor = '';
-        }, { once: true });
-      }
-
-      return;
-    }
-
-    // Moldova mobile validation
-    const validPrefixes = [
-      '60','61','62','67','68','69',
-      '76','77','78','79','22'
-    ];
-
-    if (
-      phone.length !== 8 ||
-      !validPrefixes.includes(phone.substring(0,2))
-    ) {
-      alert('Introduceți un număr moldovenesc valid.');
-      return;
-    }
-
-    const fullPhone = '+373 ' + phone.replace(/(\d{2})(\d{3})(\d{3})/, '$1 $2 $3');
-
-    async function saveSubmission(data) {
-
-    const { error } = await supabaseClient
-      .from('submissions')
-      .insert([data]);
-
-    if (error) {
-      console.error(error);
-      alert("Eroare la salvare");
-      return false;
-    }
-
-    return true;
+  if (!fname || !phone) {
+    alert("Completați toate câmpurile");
+    return;
   }
 
+  const validPrefixes = [
+    '60','61','62','67','68','69',
+    '76','77','78','79'
+  ];
 
-    document.getElementById('form-body').style.display = 'none';
-    document.getElementById("form").addEventListener("submit", async function(e) {
-
-      e.preventDefault();
-
-      const prenume = document.getElementById("prenume").value;
-      const nume = document.getElementById("nume").value;
-      const telefon = document.getElementById("telefon").value;
-
-      const formData = {
-        prenume,
-        nume,
-        telefon,
-        data: new Date().toLocaleString('ro-RO')
-      };
-
-      await saveSubmission(formData);
-
-    });
+  if (
+    phone.length !== 8 ||
+    !validPrefixes.includes(phone.substring(0,2))
+  ) {
+    alert('Introduceți un număr moldovenesc valid.');
+    return;
   }
 
-  const SUPABASE_URL = "https://pwinrkuezjgismibvmvn.supabase.co/rest/v1/";
+  const fullPhone =
+    '+373 ' +
+    phone.replace(/(\d{2})(\d{3})(\d{3})/, '$1 $2 $3');
+
+  const formData = {
+    prenume: fname,
+    nume: lname,
+    telefon: fullPhone,
+    data: new Date().toLocaleString('ro-RO')
+  };
+
+  const { error } = await supabaseClient
+    .from('submissions')
+    .insert([formData]);
+
+  if (error) {
+    console.error(error);
+    alert("Eroare la salvare");
+    return;
+  }
+
+  document.getElementById('form-body').style.display = 'none';
+  document.getElementById('success-state').style.display = 'block';
+}
+  const SUPABASE_URL = "https://pwinrkuezjgismibvmvn.supabase.co";
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB3aW5ya3VlempnaXNtaWJ2bXZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyOTkzOTAsImV4cCI6MjA5NDg3NTM5MH0.2vxw3ZAb66BBTZMv94vPxAwjAKveNQwm5tvpRGoDugo";
 
   const supabaseClient = supabase.createClient(
